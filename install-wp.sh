@@ -21,15 +21,17 @@ random-string()
 
 PASSWORD_ALEATORIO=$(random-string)
 
+#Clean name of characters
+DB_NAME_CLEAN="${DB_NAME//./}"
 
-mysql -u$DB_USER -p$DB_PASS -e"CREATE DATABASE $DB_NAME DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
-mysql -u$DB_USER -p$DB_PASS -e"CREATE USER $DB_NAME@localhost IDENTIFIED BY '$PASSWORD_ALEATORIO';"
-mysql -u$DB_USER -p$DB_PASS -e"GRANT ALL ON $DB_NAME.* TO '$DB_NAME'@'localhost' IDENTIFIED BY '$PASSWORD_ALEATORIO'; FLUSH PRIVILEGES;"
+mysql -u$DB_USER -p$DB_PASS -e"CREATE DATABASE $DB_NAME_CLEAN DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+mysql -u$DB_USER -p$DB_PASS -e"CREATE USER $DB_NAME_CLEAN@localhost IDENTIFIED BY '$PASSWORD_ALEATORIO';"
+mysql -u$DB_USER -p$DB_PASS -e"GRANT ALL ON $DB_NAME_CLEAN.* TO '$DB_NAME_CLEAN'@'localhost' IDENTIFIED BY '$PASSWORD_ALEATORIO'; FLUSH PRIVILEGES;"
 # Download WP Core.
 wp core download --path=$SITE_PATH/$DEST
 
 # Generate the wp-config.php file
-wp core config --path=$SITE_PATH/$DEST --dbname=$DB_NAME --dbuser=$DB_NAME --dbpass=$PASSWORD_ALEATORIO --extra-php <<PHP
+wp core config --path=$SITE_PATH/$DEST --dbname=$DB_NAME_CLEAN --dbuser=$DB_NAME_CLEAN --dbpass=$PASSWORD_ALEATORIO --extra-php <<PHP
 define('WP_DEBUG', true);
 define('WP_DEBUG_LOG', true);
 define('WP_DEBUG_DISPLAY', true);
@@ -38,3 +40,5 @@ PHP
 
 # Install the WordPress database.
 wp core install --path=$SITE_PATH/$DEST --url=$BASE_URL/$DEST --title=$DEST --admin_user=test --admin_password=test --admin_email=YOU@YOURDOMAIN.com
+sudo ln -s $SITE_PATH/$DEST /var/www/$DEST
+sudo ./virtualhost/virtualhost.sh create $DEST $DEST

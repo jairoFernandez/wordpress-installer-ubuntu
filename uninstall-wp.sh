@@ -19,14 +19,16 @@ then
 
     # Delete files
     rm -rf $SITE_PATH/$DEST/
-
     # Delete the database.
     DB_NAME=$(echo $DEST | sed -e 's/-/_/g')
     echo "Deleting database $DB_NAME..."
 
-    mysql -u$DB_USER -p$DB_PASS -e"DROP DATABASE $DB_NAME"
-    mysql -u$DB_USER -p$DB_PASS -e"DROP USER '$DB_NAME'@'localhost';"
+    #Clean name of characters
+    DB_NAME_CLEAN="${DB_NAME//./}"
     
+    mysql -u$DB_USER -p$DB_PASS -e"DROP DATABASE $DB_NAME_CLEAN"
+    mysql -u$DB_USER -p$DB_PASS -e"DROP USER '$DB_NAME_CLEAN'@'localhost';"
+    sudo unlink /var/www/$DEST
 
     echo 'WordPress install deleted successfully.'
 fi
